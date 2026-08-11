@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧾 Formatador de NFe</title>
+    <style>
+        /* ===== RESET E BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ===== CARD PRINCIPAL ===== */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 40px 48px;
+            max-width: 680px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        /* ===== CABEÇALHO ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .header .icon {
+            font-size: 36px;
+            line-height: 1;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header h1 span {
+            color: #34d399;
+        }
+
+        .badge {
+            margin-left: auto;
+            background: rgba(52, 211, 153, 0.2);
+            color: #6ee7b7;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* ===== LABEL ===== */
+        .label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .label .hint {
+            font-weight: 400;
+            opacity: 0.6;
+            font-size: 12px;
+        }
+
+        /* ===== INPUT ===== */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #34d399;
+            box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.15);
+        }
+
+        .input-wrapper .prefix {
+            padding: 0 0 0 18px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 16px 18px;
+            font-size: 16px;
+            color: #fff;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            min-width: 0;
+        }
+
+        .input-wrapper input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            letter-spacing: 0;
+        }
+
+        .input-wrapper .clear-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 20px;
+            padding: 0 18px 0 0;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: none;
+        }
+
+        .input-wrapper .clear-btn:hover {
+            color: #fff;
+        }
+        .input-wrapper .clear-btn.visible {
+            display: block;
+        }
+
+        /* ===== BOTÕES ===== */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(5, 150, 105, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        /* ===== FORMATOS ===== */
+        .format-selector {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .format-option {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .format-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .format-option.active {
+            border-color: #34d399;
+            background: rgba(52, 211, 153, 0.1);
+            color: #34d399;
+        }
+
+        .format-option .format-icon {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .format-option .format-label {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        /* ===== RESULTADO ===== */
+        .result-area {
+            margin-top: 28px;
+            padding-top: 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .result-header .result-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .result-header .char-count {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 12px;
+        }
+
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 18px;
+            color: #34d399;
+            letter-spacing: 0.5px;
+            min-height: 60px;
+            word-break: break-all;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-box .placeholder {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 14px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            letter-spacing: 0;
+        }
+
+        .result-box.has-result {
+            border-color: rgba(52, 211, 153, 0.2);
+            box-shadow: 0 0 30px rgba(52, 211, 153, 0.05);
+        }
+
+        .result-box .highlight {
+            color: #fbbf24;
+        }
+
+        .result-box .separator {
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== BOTÃO COPIAR ===== */
+        .copy-wrapper {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-copy:active {
+            transform: scale(0.97);
+        }
+
+        .btn-copy.copied {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.2);
+        }
+
+        /* ===== STATUS ===== */
+        .status {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            min-height: 28px;
+            transition: all 0.3s;
+        }
+
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .status .dot.idle {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .status .dot.success {
+            background: #34d399;
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+        }
+        .status .dot.warning {
+            background: #fbbf24;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+        }
+        .status .dot.error {
+            background: #f87171;
+            box-shadow: 0 0 12px rgba(248, 113, 113, 0.4);
+        }
+
+        .status .status-text {
+            transition: color 0.3s;
+        }
+        .status .status-text.success {
+            color: #34d399;
+        }
+        .status .status-text.warning {
+            color: #fbbf24;
+        }
+        .status .status-text.error {
+            color: #f87171;
+        }
+
+        /* ===== LINK PARA A OUTRA FERRAMENTA ===== */
+        .footer-link {
+            margin-top: 20px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-link a:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 600px) {
+            .card {
+                padding: 28px 20px;
+                border-radius: 24px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+            .header .icon {
+                font-size: 28px;
+            }
+            .badge {
+                font-size: 9px;
+                padding: 2px 10px;
+            }
+
+            .input-wrapper input {
+                font-size: 14px;
+                padding: 14px 14px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+            .btn {
+                min-width: unset;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .format-selector {
+                flex-direction: column;
+            }
+            .format-option {
+                min-width: unset;
+            }
+
+            .result-box {
+                font-size: 15px;
+                padding: 14px 16px;
+                min-height: 50px;
+            }
+
+            .copy-wrapper {
+                justify-content: stretch;
+            }
+            .btn-copy {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .card {
+                padding: 20px 14px;
+            }
+            .header {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .badge {
+                margin-left: 0;
+            }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(52, 211, 153, 0.3);
+            border-radius: 20px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(52, 211, 153, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- Cabeçalho -->
+        <div class="header">
+            <span class="icon">🧾</span>
+            <h1>Formatador <span>NFe</span></h1>
+            <span class="badge">v1.1</span>
+        </div>
+
+        <!-- Input -->
+        <label class="label">
+            Números da NFe / CNPJ
+            <span class="hint">— apenas números, sem formatação</span>
+        </label>
+        <div class="input-wrapper">
+            <span class="prefix">🔢</span>
+            <input
+                type="text"
+                id="inputNfe"
+                placeholder="Ex: 12345678901234567890123456789012345678901234"
+                autofocus
+                spellcheck="false"
+            />
+            <button class="clear-btn" id="clearBtn" aria-label="Limpar campo">✕</button>
+        </div>
+
+        <!-- Formatos -->
+        <div class="format-selector">
+            <div class="format-option active" data-format="nfe">
+                <span class="format-icon">📄</span>
+                Chave NFe
+                <span class="format-label">44 dígitos</span>
+            </div>
+            <div class="format-option" data-format="cnpj">
+                <span class="format-icon">🏢</span>
+                CNPJ
+                <span class="format-label">14 dígitos</span>
+            </div>
+            <div class="format-option" data-format="cpf">
+                <span class="format-icon">👤</span>
+                CPF
+                <span class="format-label">11 dígitos</span>
+            </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="actions">
+            <button class="btn btn-primary" id="processBtn">
+                <span>✨</span> Format
+            </button>
+            <button class="btn btn-secondary" id="clearAllBtn">
+                <span>🗑️</span> Limpar
+            </button>
+        </div>
+
+        <!-- Resultado -->
+        <div class="result-area">
+            <div class="result-header">
+                <span class="result-label">📋 Resultado</span>
+                <span class="char-count" id="charCount">0 dígitos</span>
+            </div>
+            <div class="result-box" id="resultBox">
+                <span class="placeholder">aguardando...</span>
+            </div>
+
+            <!-- Botão Copiar -->
+            <div class="copy-wrapper">
+                <button class="btn-copy" id="copyBtn">
+                    <span>📋</span> Copiar resultado
+                </button>
+            </div>
+
+            <!-- Status -->
+            <div class="status">
+                <span class="dot idle" id="statusDot"></span>
+                <span class="status-text" id="statusText">Pronto para formatar</span>
+            </div>
+        </div>
+
+        <!-- Link para a ferramenta inversa -->
+        <div class="footer-link">
+            <a href="#" id="switchTool">🔄 Ir para Limpeza de NFe</a>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== DOM =====
+            const inputEl = document.getElementById('inputNfe');
+            const clearBtn = document.getElementById('clearBtn');
+            const processBtn = document.getElementById('processBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const resultBox = document.getElementById('resultBox');
+            const charCount = document.getElementById('charCount');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const formatOptions = document.querySelectorAll('.format-option');
+            const switchLink = document.getElementById('switchTool');
+
+            let currentFormat = 'nfe';
+
+            // ===== FORMATADORES =====
+            function formatarNFe(numeros) {
+                // 44 dígitos: 4-4-4-4-4-4-4-4-4-4-4
+                if (numeros.length !== 44) return null;
+                const partes = [];
+                for (let i = 0; i < 44; i += 4) {
+                    partes.push(numeros.substring(i, i + 4));
+                }
+                return partes.join(' ');
+            }
+
+            function formatarCNPJ(numeros) {
+                // 14 dígitos: 12.345.678/0001-99
+                if (numeros.length !== 14) return null;
+                return numeros.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+            }
+
+            function formatarCPF(numeros) {
+                // 11 dígitos: 123.456.789-00
+                if (numeros.length !== 11) return null;
+                return numeros.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+            }
+
+            function formatarNumeros(numeros, formato) {
+                switch (formato) {
+                    case 'nfe':
+                        return formatarNFe(numeros);
+                    case 'cnpj':
+                        return formatarCNPJ(numeros);
+                    case 'cpf':
+                        return formatarCPF(numeros);
+                    default:
+                        return null;
+                }
+            }
+
+            // ===== VALIDAÇÃO =====
+            function validarFormato(numeros, formato) {
+                const digitos = numeros.length;
+                const esperado = formato === 'nfe' ? 44 : formato === 'cnpj' ? 14 : 11;
+                return digitos === esperado;
+            }
+
+            // ===== PROCESSAR =====
+            function processar() {
+                const raw = inputEl.value;
+                const numeros = raw.replace(/\D/g, '');
+                const digitos = numeros.length;
+
+                // --- Resultado ---
+                resultBox.innerHTML = '';
+                let resultado = '';
+
+                if (digitos === 0) {
+                    const placeholder = document.createElement('span');
+                    placeholder.className = 'placeholder';
+                    placeholder.textContent = 'digite apenas números';
+                    resultBox.appendChild(placeholder);
+                    resultBox.classList.remove('has-result');
+                    charCount.textContent = '0 dígitos';
+                    
+                    // Status
+                    statusDot.className = 'dot idle';
+                    statusText.className = 'status-text';
+                    statusText.textContent = 'Aguardando entrada...';
+                    return;
+                }
+
+                // Tenta formatar
+                const formatado = formatarNumeros(numeros, currentFormat);
+                const valido = validarFormato(numeros, currentFormat);
+
+                if (formatado && valido) {
+                    // Sucesso - exibe formatado
+                    const span = document.createElement('span');
+                    span.textContent = formatado;
+                    span.style.color = '#34d399';
+                    resultBox.appendChild(span);
+                    resultBox.classList.add('has-result');
+                    resultado = formatado;
+
+                    const nomes = {
+                        nfe: 'Chave NFe',
+                        cnpj: 'CNPJ',
+                        cpf: 'CPF'
+                    };
+                    const esperados = {
+                        nfe: 44,
+                        cnpj: 14,
+                        cpf: 11
+                    };
+
+                    charCount.textContent = `${digitos} dígitos ✓`;
+                    statusDot.className = 'dot success';
+                    statusText.className = 'status-text success';
+                    statusText.textContent = `✅ ${nomes[currentFormat]} formatado (${digitos} dígitos)`;
+                } else {
+                    // Erro - mostra apenas números
+                    const span = document.createElement('span');
+                    span.textContent = numeros;
+                    span.style.color = '#fbbf24';
+                    resultBox.appendChild(span);
+                    resultBox.classList.add('has-result');
+                    resultado = numeros;
+
+                    const esperados = {
+                        nfe: 44,
+                        cnpj: 14,
+                        cpf: 11
+                    };
+                    const nomes = {
+                        nfe: 'Chave NFe',
+                        cnpj: 'CNPJ',
+                        cpf: 'CPF'
+                    };
+
+                    charCount.textContent = `${digitos} dígitos`;
+                    statusDot.className = 'dot warning';
+                    statusText.className = 'status-text warning';
+                    statusText.textContent = `⚠️ ${digitos} dígitos (${nomes[currentFormat]} precisa de ${esperados[currentFormat]})`;
+                }
+
+                // Mostra/oculta botão de limpar
+                clearBtn.classList.toggle('visible', raw.length > 0);
+
+                // Reseta estilo do botão copiar
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = '<span>📋</span> Copiar resultado';
+            }
+
+            // ===== LIMPAR =====
+            function limparTudo() {
+                inputEl.value = '';
+                clearBtn.classList.remove('visible');
+                resultBox.innerHTML = '<span class="placeholder">aguardando...</span>';
+                resultBox.classList.remove('has-result');
+                charCount.textContent = '0 dígitos';
+                statusDot.className = 'dot idle';
+                statusText.className = 'status-text';
+                statusText.textContent = 'Pronto para formatar';
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = '<span>📋</span> Copiar resultado';
+                inputEl.focus();
+            }
+
+            // ===== COPIAR =====
+            function copiarResultado() {
+                const texto = resultBox.textContent;
+                if (!texto || texto === 'aguardando...' || texto === 'digite apenas números') {
+                    statusText.textContent = '⚠️ Nada para copiar';
+                    statusDot.className = 'dot warning';
+                    setTimeout(() => {
+                        if (statusText.textContent === '⚠️ Nada para copiar') {
+                            processar();
+                        }
+                    }, 2000);
+                    return;
+                }
+
+                navigator.clipboard.writeText(texto).then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = '<span>✅</span> Copiado!';
+                    const original = statusText.textContent;
+                    statusText.textContent = '✅ Copiado!';
+                    statusDot.className = 'dot success';
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '<span>📋</span> Copiar resultado';
+                        if (statusText.textContent === '✅ Copiado!') {
+                            processar();
+                        }
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback
+                    const range = document.createRange();
+                    range.selectNodeContents(resultBox);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    document.execCommand('copy');
+                    sel.removeAllRanges();
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = '<span>✅</span> Copiado!';
+                    statusText.textContent = '✅ Copiado!';
+                    statusDot.className = 'dot success';
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '<span>📋</span> Copiar resultado';
+                        processar();
+                    }, 2000);
+                });
+            }
+
+            // ===== MUDAR FORMATO =====
+            function mudarFormato(formato) {
+                currentFormat = formato;
+                formatOptions.forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.format === formato);
+                });
+                processar();
+            }
+
+            // ===== EVENTOS =====
+            processBtn.addEventListener('click', processar);
+
+            clearAllBtn.addEventListener('click', limparTudo);
+
+            copyBtn.addEventListener('click', copiarResultado);
+
+            clearBtn.addEventListener('click', function() {
+                inputEl.value = '';
+                clearBtn.classList.remove('visible');
+                inputEl.focus();
+                processar();
+            });
+
+            inputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    processar();
+                }
+            });
+
+            inputEl.addEventListener('input', function() {
+                clearBtn.classList.toggle('visible', this.value.length > 0);
+                // Processa automaticamente ao digitar (opcional)
+                // Descomente a linha abaixo se quiser formatação automática:
+                // processar();
+            });
+
+            inputEl.addEventListener('paste', function() {
+                setTimeout(processar, 50);
+            });
+
+            formatOptions.forEach(opt => {
+                opt.addEventListener('click', function() {
+                    mudarFormato(this.dataset.format);
+                });
+            });
+
+            // ===== SWITCH ENTRE FERRAMENTAS =====
+            switchLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Troca para a ferramenta de limpeza
+                // Em uma implementação real, você mudaria a URL ou o conteúdo
+                // Aqui vamos apenas mostrar um alerta ou redirecionar
+                const urlAtual = window.location.href;
+                if (urlAtual.includes('formatador')) {
+                    window.location.href = urlAtual.replace('formatador', 'limpeza');
+                } else if (urlAtual.includes('limpeza')) {
+                    window.location.href = urlAtual.replace('limpeza', 'formatador');
+                } else {
+                    // Se não tiver no path, redireciona para a página de limpeza
+                    window.location.href = 'limpeza-nfe.html';
+                }
+            });
+
+            // ===== INICIAL =====
+            limparTudo();
+            inputEl.focus();
+
+            // Verifica se há query param para formato
+            const params = new URLSearchParams(window.location.search);
+            const formatoParam = params.get('formato');
+            if (formatoParam && ['nfe', 'cnpj', 'cpf'].includes(formatoParam)) {
+                mudarFormato(formatoParam);
+            }
+
+        })();
+    </script>
+
+</body>
+</html>
